@@ -4,6 +4,8 @@
 #include "scene.h"
 #include "castle.h"
 #include "character.h"
+#include "algorithm"
+#include <string>
 
 float char1_x = 0;
 float char2_x = 0;
@@ -237,20 +239,199 @@ int scene9()
 
 int scene10()
 {
-	glClearColor(0.0, 0.0, 0.0, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glLoadIdentity();
+	// Sky and ground setup
+glClearColor(0.6f, 0.8f, 1.0f, 1.0f);
+glClear(GL_COLOR_BUFFER_BIT);
+glLoadIdentity();
 
-	glutSwapBuffers();
-	return 1;
+// Green ground
+glColor3f(0.4f, 0.7f, 0.3f);
+glBegin(GL_QUADS);
+glVertex2f(-20.0f, 0.0f);
+glVertex2f(-20.0f, -20.0f);
+glVertex2f(20.0f, -20.0f);
+glVertex2f(20.0f, 0.0f);
+glEnd();
+
+// ADDED TREES (from Scene 3) ----------------------------------------
+drawTree(-14.0f, -3.0f, 1.2f);  // Left background
+drawTree(-16.0f, -1.0f, 0.9f);  // Left midground
+drawTree(15.0f, -2.0f, 1.1f);   // Right background
+drawTree(18.0f, -1.5f, 0.8f);   // Right midground
+
+// DEFEATED DRAGON --------------------------------------------------
+glPushMatrix();
+glTranslatef(12.0f, -6.0f, 0.0f);
+glRotatef(90.0f, 0.0f, 0.0f, 1.0f);
+glScalef(1.8f, 1.8f, 1.0f);
+drawDragon(0.0f, 0.0f, 1.0f);
+
+// Giant X eyes
+glColor3f(1.0f, 0.0f, 0.0f);
+glLineWidth(4.0f);
+glBegin(GL_LINES);
+// Left eye X
+glVertex2f(3.0f, 1.0f); glVertex2f(4.0f, 0.4f);
+glVertex2f(3.0f, 0.4f); glVertex2f(4.0f, 1.0f);
+// Right eye X
+glVertex2f(3.0f, 0.3f); glVertex2f(4.0f, -0.3f);
+glVertex2f(3.0f, -0.3f); glVertex2f(4.0f, 0.3f);
+glEnd();
+glPopMatrix();
+
+// VICTORIOUS HEROES ------------------------------------------------
+// Hero 1 (jumping)
+float jumpHeight = sin(frame * 0.2f) * 0.8f;
+glPushMatrix();
+glTranslatef(-9.0f, -5.0f + jumpHeight, 0.0f);
+glScalef(2.0f, 2.0f, 1.0f);
+drawCharacter1();
+glPopMatrix();
+
+// Hero 2 
+glPushMatrix();
+glTranslatef(-4.0f, -5.0f, 0.0f);
+glScalef(2.0f, 2.0f, 1.0f);
+drawCharacter2();
+glPopMatrix();
+
+// ENHANCED VICTORY TEXT --------------------------------------------
+glColor3f(1.0f, 0.9f, 0.0f); // Brighter gold color
+std::string victoryText = "VICTORY!";
+
+// Calculate centered position (now 20% larger)
+float textWidth = victoryText.length() * 1.2f;
+glRasterPos2f(-textWidth / 2, 9.0f); // Higher position
+
+// Draw each character with spacing (using larger font)
+for (char c : victoryText) {
+	glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c);
+}
+
+glutSwapBuffers();
 }
 
 int scene11()
 {
-	glClearColor(0.0, 0.0, 0.0, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glLoadIdentity();
-	
-	return 1;
+	// Sky background
+glClearColor(0.7f, 0.9f, 1.0f, 1.0f);
+glClear(GL_COLOR_BUFFER_BIT);
+glLoadIdentity();
+
+// Ground
+glColor3f(0.5f, 0.7f, 0.3f);
+glBegin(GL_QUADS);
+glVertex2f(-20.0f, 0.0f);
+glVertex2f(-20.0f, -20.0f);
+glVertex2f(20.0f, -20.0f);
+glVertex2f(20.0f, 0.0f);
+glEnd();
+
+// Background trees
+drawTree(-18.0f, -4.0f, 2.5f);
+drawTree(10.0f, 10.0f, 3.0f);
+
+// Castle
+glPushMatrix();
+glTranslatef(0.0f, -5.0f, 0.0f);
+glScalef(1.5f, 1.5f, 1.0f);
+drawCastle();
+glPopMatrix();
+
+// KING AND VILLAGERS (always visible, waiting)
+// King (center front)
+glPushMatrix();
+glTranslatef(0.0f, -7.0f, 0.0f);
+glScalef(1.2f, 1.2f, 1.0f);
+
+// Body (royal purple robe)
+glColor3f(0.5f, 0.1f, 0.8f);
+glBegin(GL_QUADS);
+glVertex2f(-1.5f, 2.5f);
+glVertex2f(1.5f, 2.5f);
+glVertex2f(1.5f, 0.0f);
+glVertex2f(-1.5f, 0.0f);
+glEnd();
+
+// Crown (gold with jewels)
+glColor3f(1.0f, 0.8f, 0.0f);
+glBegin(GL_TRIANGLE_FAN);
+glVertex2f(0.0f, 3.5f);
+glVertex2f(-1.8f, 2.7f);
+glVertex2f(-1.2f, 2.7f);
+glVertex2f(0.0f, 3.2f);
+glVertex2f(1.2f, 2.7f);
+glVertex2f(1.8f, 2.7f);
+glEnd();
+glPopMatrix();
+
+// 10 Villagers (standing behind king)
+float villagerColors[10][3] = {
+	{0.2f,0.6f,0.9f}, {0.8f,0.4f,0.1f}, {0.3f,0.7f,0.4f},
+	{0.9f,0.5f,0.7f}, {0.1f,0.5f,0.8f}, {0.7f,0.8f,0.2f},
+	{0.4f,0.3f,0.9f}, {0.9f,0.6f,0.3f}, {0.2f,0.8f,0.6f},
+	{0.8f,0.2f,0.5f}
+};
+
+for (int i = 0; i < 10; i++) {
+	glPushMatrix();
+	float x = -4.0f + (i % 5) * 2.0f; // 2 rows of 5
+	float y = -7.0f + (i / 5) * 1.5f;
+	glTranslatef(x, y, 0.0f);
+
+	// Body
+	glColor3fv(villagerColors[i]);
+	glBegin(GL_QUADS);
+	glVertex2f(-0.8f, 1.5f);
+	glVertex2f(0.8f, 1.5f);
+	glVertex2f(0.8f, 0.0f);
+	glVertex2f(-0.8f, 0.0f);
+	glEnd();
+
+	// Head
+	glColor3f(1.0f, 0.8f, 0.6f);
+	glBegin(GL_QUADS);
+	glVertex2f(-0.6f, 2.2f);
+	glVertex2f(0.6f, 2.2f);
+	glVertex2f(0.6f, 1.5f);
+	glVertex2f(-0.6f, 1.5f);
+	glEnd();
+	glPopMatrix();
+}
+
+// HEROES APPROACHING FROM RIGHT
+float hero1X = std::min(-1.0f, 17.0f - frame * 0.2f); // Moves from x=15 to x=-1
+float hero2X = std::min(1.0f, 15.0f - frame * 0.2f);  // Moves from x=17 to x=1
+
+// Hero 1
+glPushMatrix();
+glTranslatef(hero1X, -10.0f, 0.0f);
+glScalef(0.9f, 0.9f, 1.0f);
+drawCharacter1();
+glPopMatrix();
+
+// Hero 2
+glPushMatrix();
+glTranslatef(hero2X, -10.0f, 0.0f);
+glScalef(0.9f, 0.9f, 1.0f);
+drawCharacter2();
+glPopMatrix();
+
+// THANK YOU MESSAGE (appears when heroes arrive)
+if (hero1X <= -1.0f) {
+	glColor3f(0.0f, 0.0f, 0.0f);
+	float textX = -8.5f;
+	float textY = 11.5f;
+	const char* thanks = "THANK YOU HEROES!";
+
+	glRasterPos2f(textX, textY);
+	for (const char* c = thanks; *c != '\0'; c++) {
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *c);
+		textX += 1.1f;
+		glRasterPos2f(textX, textY);
+	}
+}
+
+glutSwapBuffers();
 }
 
